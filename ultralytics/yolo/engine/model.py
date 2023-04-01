@@ -259,7 +259,8 @@ class YOLO:
         else:
             args.task = self.task
         if args.imgsz == DEFAULT_CFG.imgsz and not isinstance(self.model, (str, Path)):
-            args.imgsz = self.model.args['imgsz']  # use trained imgsz unless custom value is passed
+            #args.imgsz = self.model.args['imgsz']  # use trained imgsz unless custom value is passed
+            args.imgsz = self.model.args.imgsz
         args.imgsz = check_imgsz(args.imgsz, max_dim=1)
 
         validator = TASK_MAP[self.task][2](args=args)
