@@ -3,6 +3,7 @@
 import os
 import re
 from pathlib import Path
+from torch.nn.parallel import DistributedDataParallel
 
 from ultralytics.yolo.utils import LOGGER, TESTS_RUNNING, colorstr
 
@@ -38,7 +39,13 @@ def on_pretrain_routine_end(trainer):
                 active_run = mlflow.start_run(experiment_id=experiment.experiment_id)
             run_id = active_run.info.run_id
             LOGGER.info(f'{prefix}Using run_id({run_id}) at {mlflow_location}')
-            run.log_params(vars(trainer.model.args))
+            
+            if not isinstance(trainer.model, DistributedDataParallel):
+                run.log_params(vars(trainer.model.args))
+            else:
+                ddp_params = vars(trainer.model.module.args)
+                LOGGER.info(f"Logging DDP parameters: {ddp_params}")
+                run.log_params(ddp_params)
         except Exception as err:
             LOGGER.error(f'{prefix}Failing init - {repr(err)}')
             LOGGER.warning(f'{prefix}Continuing without Mlflow')
