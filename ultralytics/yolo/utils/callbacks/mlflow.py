@@ -18,6 +18,8 @@ except (ImportError, AssertionError):
 
 def on_pretrain_routine_end(trainer):
     global mlflow, run, run_id, experiment_name
+    
+    experiment_name = trainer.args.project or '/Shared/YOLOv8'
 
     if os.environ.get('MLFLOW_TRACKING_URI') is None:
         mlflow = None
@@ -25,8 +27,6 @@ def on_pretrain_routine_end(trainer):
     if mlflow:
         mlflow_location = os.environ['MLFLOW_TRACKING_URI']  # "http://192.168.xxx.xxx:5000"
         mlflow.set_tracking_uri(mlflow_location)
-
-        experiment_name = trainer.args.project or '/Shared/YOLOv8'
         experiment = mlflow.get_experiment_by_name(experiment_name)
         if experiment is None:
             mlflow.create_experiment(experiment_name)
